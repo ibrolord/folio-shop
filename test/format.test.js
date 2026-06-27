@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatPrice } from '../src/format.js';
+import { formatPrice } from '../public/src/format.js';
 
 describe('formatPrice', () => {
   it('formats dollars and cents', () => {

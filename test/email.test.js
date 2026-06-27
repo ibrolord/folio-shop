@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidEmail } from '../src/email.js';
+import { isValidEmail } from '../public/src/email.js';
 
 describe('isValidEmail', () => {
   it('accepts a normal address', () => {

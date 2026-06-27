@@ -30,10 +30,10 @@
   .item .thumb{ width:54px;height:54px;border-radius:11px; background:linear-gradient(135deg,#e9e7ff,#d6e9ff); display:grid;place-items:center; font-size:22px; flex:0 0 54px }
   .item b{ font-size:14px } .item span{ display:block; color:var(--muted); font-size:12px; margin-top:1px }
   .item .ip{ margin-left:auto; font-weight:700; font-size:14px }
-  .promo{ display:flex; gap:9px; margin-top:18px }
-  .promo input{ flex:1; height:40px; border-radius:9px; border:1px solid #e2e2ea; padding:0 12px; font:600 13px ui-monospace,monospace; letter-spacing:.04em; text-transform:uppercase }
-  .promo button{ height:40px; padding:0 16px; border-radius:9px; border:1px solid var(--ink); background:var(--ink); color:#fff; font-weight:600; font-size:13px; cursor:pointer }
-  .note{ font-size:12px; margin-top:8px; min-height:16px } .note.ok{ color:#16a34a } .note.bad{ color:#ef4444 }
+  .promo{ margin-top:18px }
+  .promo button{ width:100%; height:44px; border-radius:10px; border:1px solid var(--ink); background:var(--ink); color:#fff; font-weight:600; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px }
+  .promo button .tag{ font:600 11px ui-monospace,monospace; letter-spacing:.06em; background:rgba(255,255,255,.16); padding:2px 7px; border-radius:5px }
+  .note{ font-size:12px; margin-top:10px; min-height:16px } .note.ok{ color:#16a34a } .note.bad{ color:#ef4444 }
   .sum{ margin-top:18px; border-top:1px solid var(--line); padding-top:16px }
   .row{ display:flex; justify-content:space-between; font-size:13.5px; color:#6a6a76; margin-bottom:9px }
   .row .v{ color:var(--ink); font-weight:600 }
@@ -43,9 +43,6 @@
 
   footer{ border-top:1px solid var(--line); padding:34px 0; margin-top:20px }
   .news{ max-width:420px } .news h3{ font-size:15px } .news p{ color:var(--muted); font-size:13px; margin-top:3px }
-  .news .field{ display:flex; gap:9px; margin-top:12px }
-  .news input{ flex:1; height:40px; border-radius:9px; border:1px solid #e2e2ea; padding:0 12px; font-size:13px }
-  .news button{ height:40px; padding:0 16px; border-radius:9px; border:1px solid var(--ink); background:#fff; font-weight:600; font-size:13px; cursor:pointer }
 </style>
 </head>
 <body>
@@ -61,7 +58,7 @@
         <div class="body">
           <h2>The Folio Pro Library</h2>
           <p>The complete collection — every notebook, pen, and refill we make.</p>
-          <div class="price" id="featurePrice">—</div>
+          <div class="price">$1,099.00</div>
         </div>
       </div>
 
@@ -76,16 +73,15 @@
         </div>
 
         <div class="promo">
-          <input id="promo" placeholder="Promo code" spellcheck="false" />
-          <button id="apply">Apply</button>
+          <button id="apply">Apply newsletter discount <span class="tag">SAVE10</span></button>
         </div>
         <div class="note" id="promoNote"></div>
 
         <div class="sum">
-          <div class="row"><span>Subtotal</span><span class="v" id="vSub">—</span></div>
+          <div class="row"><span>Subtotal</span><span class="v" id="vSub">$50.00</span></div>
           <div class="row"><span>Discount</span><span class="v" id="vDisc">—</span></div>
-          <div class="row"><span>Shipping</span><span class="v" id="vShip">—</span></div>
-          <div class="row total"><span>Total</span><span class="v" id="vTotal">—</span></div>
+          <div class="row"><span>Shipping</span><span class="v" id="vShip">FREE</span></div>
+          <div class="row total"><span>Total</span><span class="v" id="vTotal">$50.00</span></div>
         </div>
         <button class="checkout">Checkout</button>
       </div>
@@ -95,57 +91,39 @@
       <div class="news">
         <h3>Get 10% off your first order</h3>
         <p>Join the Folio newsletter. We use code SAVE10.</p>
-        <div class="field">
-          <input id="email" placeholder="you@example.com" />
-          <button id="subscribe">Subscribe</button>
-        </div>
-        <div class="note" id="emailNote"></div>
       </div>
     </footer>
   </div>
 
   <!-- AnnotateQA widget — this store runs it on itself. Press Shift+F or the launcher (bottom-right) to report a bug. -->
-  <script async src="annotate-loader.js"></script>
+  <script async src="./annotate-loader.js"></script>
 
   <script type="module">
-    import { summarize, subtotal } from './src/pricing.js';
+    import { summarize, savingsLabel } from './src/pricing.js';
     import { formatPrice } from './src/format.js';
-    import { isValidEmail } from './src/email.js';
 
     const items = [{ name: 'Everyday Notebook', price: 25, qty: 2 }];
-    let promo = '';
-
-    // Featured bundle price — surfaces the formatting bug ($1099.00, no comma).
-    document.getElementById('featurePrice').textContent = formatPrice(1099);
-
-    function render() {
-      const s = summarize({ items, promo });
-      document.getElementById('vSub').textContent = formatPrice(s.subtotal);
-      document.getElementById('vDisc').textContent = s.discount ? '−' + formatPrice(s.discount) : '—';
-      document.getElementById('vShip').textContent = s.shipping ? formatPrice(s.shipping) : 'FREE';
-      document.getElementById('vTotal').textContent = formatPrice(s.total);
-    }
 
     document.getElementById('apply').addEventListener('click', () => {
-      promo = document.getElementById('promo').value.trim();
+      const cart = { items, promo: 'SAVE10' };
       const note = document.getElementById('promoNote');
-      if (!promo) { note.textContent = ''; render(); return; }
-      note.className = 'note ok';
-      note.textContent = `Code ${promo.toUpperCase()} applied`;
-      render();
-    });
+      try {
+        // savingsLabel() throws on the planted bug. The discount never reaches the
+        // totals, so the cart stays at $50.00 and the error is logged to the console.
+        note.className = 'note ok';
+        note.textContent = savingsLabel(cart);
 
-    document.getElementById('subscribe').addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const note = document.getElementById('emailNote');
-      if (isValidEmail(email)) {
-        note.className = 'note ok'; note.textContent = "You're in — 10% off is on its way.";
-      } else {
-        note.className = 'note bad'; note.textContent = "That doesn't look like a valid email.";
+        const s = summarize(cart);
+        document.getElementById('vSub').textContent = formatPrice(s.subtotal);
+        document.getElementById('vDisc').textContent = s.discount ? '−' + formatPrice(s.discount) : '—';
+        document.getElementById('vShip').textContent = s.shipping ? formatPrice(s.shipping) : 'FREE';
+        document.getElementById('vTotal').textContent = formatPrice(s.total);
+      } catch (err) {
+        console.error('Folio cart: failed to apply promo code', err);
+        note.className = 'note bad';
+        note.textContent = "Sorry — we couldn't apply that code. Please try again.";
       }
     });
-
-    render();
   </script>
 </body>
 </html>

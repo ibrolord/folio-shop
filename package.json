@@ -7,7 +7,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev": "node src/server.js"
+    "dev": "npx --yes http-server public -p 3000 -c-1"
   },
   "devDependencies": {
     "vitest": "^2.1.8"

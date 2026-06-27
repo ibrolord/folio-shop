@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { searchProducts } from '../src/catalog.js';
+import { searchProducts } from '../public/src/catalog.js';
 
 describe('searchProducts', () => {
   it('finds a product by a name fragment', () => {
