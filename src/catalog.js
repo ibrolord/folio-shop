@@ -7,6 +7,6 @@ export const PRODUCTS = [
 ];
 
 export function searchProducts(query) {
-  const q = String(query).trim();
-  return PRODUCTS.filter((p) => p.name.includes(q));
+  const q = String(query).trim().toLowerCase();
+  return PRODUCTS.filter((p) => p.name.toLowerCase().includes(q));
 }
