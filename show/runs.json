@@ -1,14 +1,14 @@
 {
   "note": "These are real Auto-Fix runs on the folio-shop demo repo — real reproduction, real model-generated patch, real test output.",
-  "store_url": "/",
+  "store_url": "../",
   "bugs": [
     {
       "id": "save10",
       "title": "Discount code “SAVE10” doesn’t apply to the total",
       "report": "Tried the SAVE10 code in my cart but the total still shows $50.00 — the 10% never came off.",
       "tag": "checkout",
-      "pr_url": "",
-      "pr_number": null,
+      "pr_url": "https://github.com/bolaji-ai/folio-shop/pull/1",
+      "pr_number": 1,
       "stats": "+7 −3 · 1 file · ~29s · $0.03",
       "steps": [
         {
@@ -146,8 +146,8 @@
       "title": "Newsletter form rejects valid emails",
       "report": "Your signup won’t accept my email, priya+deals@folio.com. It’s a real address.",
       "tag": "signup",
-      "pr_url": "",
-      "pr_number": null,
+      "pr_url": "https://github.com/bolaji-ai/folio-shop/pull/2",
+      "pr_number": 2,
       "stats": "+1 −1 · 1 file · ~8s · $0.01",
       "steps": [
         {
@@ -233,8 +233,8 @@
       "title": "Search is case-sensitive",
       "report": "Searching “NOTEBOOK” finds nothing, but “Notebook” works. Caps shouldn’t matter.",
       "tag": "search",
-      "pr_url": "",
-      "pr_number": null,
+      "pr_url": "https://github.com/bolaji-ai/folio-shop/pull/3",
+      "pr_number": 3,
       "stats": "+4 −4 · 1 file · ~8s · $0.01",
       "steps": [
         {

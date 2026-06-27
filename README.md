@@ -13,9 +13,9 @@ review and merge.
 **The bugs are planted. The pull requests are real** — open them and read the
 reproduction, the diff, and the test output:
 
-- SAVE10 promo not applied → [PR #_](#)
-- Newsletter rejects valid emails → [PR #_](#)
-- Search is case-sensitive → [PR #_](#)
+- SAVE10 promo not applied → [PR #1](https://github.com/bolaji-ai/folio-shop/pull/1)
+- Newsletter rejects valid emails → [PR #2](https://github.com/bolaji-ai/folio-shop/pull/2)
+- Search is case-sensitive → [PR #3](https://github.com/bolaji-ai/folio-shop/pull/3)
 
 ## Run it
 
