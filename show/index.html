@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AnnotateQA — see it fix a real bug</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --accent:#7C5CF6; --accent-light:#9b7fff; --accent-deep:#5B3FE0;
+    --s0:#0a0e13; --s1:#0f1419; --s2:#161b22; --s3:#1f2530; --s4:#2a3040;
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.16); --border-accent:rgba(124,92,246,.35);
+    --tx:#f0f0f8; --tx2:#a0a0b8; --tx3:#606078; --tx4:#4a4a5e;
+    --red:#ef4444; --green:#10b981; --amber:#f59e0b;
+    --sans:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    --ease:cubic-bezier(.4,0,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--sans); color:var(--tx); background:
+      radial-gradient(1100px 540px at 80% -10%, rgba(124,92,246,.18), transparent 60%), var(--s0);
+    -webkit-font-smoothing:antialiased; min-height:100vh; }
+  .wrap{ max-width:760px; margin:0 auto; padding:46px 22px 80px; }
+
+  .top{ display:flex; align-items:center; gap:12px; margin-bottom:8px }
+  .mark{ width:34px;height:34px;border-radius:9px; background:linear-gradient(135deg,var(--accent),var(--accent-deep)); display:grid;place-items:center }
+  .mark svg{ width:19px;height:19px }
+  .top b{ font-size:17px; letter-spacing:-.3px } .top span{ display:block; font-size:12px; color:var(--tx3) }
+  h1{ font-size:27px; font-weight:800; letter-spacing:-.8px; margin-top:22px; line-height:1.15 }
+  h1 .g{ background:linear-gradient(120deg,var(--accent-light),#a5b4fc); -webkit-background-clip:text; background-clip:text; color:transparent }
+  .lead{ color:var(--tx2); font-size:14.5px; margin-top:10px; line-height:1.55; max-width:580px }
+  .honest{ margin-top:14px; display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--tx3);
+    border:1px solid var(--border); border-radius:20px; padding:6px 13px }
+  .honest .d{ width:6px;height:6px;border-radius:50%; background:var(--amber) }
+
+  .pick{ margin-top:26px; display:grid; gap:11px }
+  .pick .lbl{ font-size:12px; font-weight:600; color:var(--tx3); text-transform:uppercase; letter-spacing:.06em }
+  .bug{ text-align:left; width:100%; background:var(--s2); border:1px solid var(--border); border-radius:13px; padding:15px 17px; cursor:pointer;
+    display:flex; gap:14px; align-items:flex-start; transition:.18s var(--ease) }
+  .bug:hover{ border-color:var(--border-accent); transform:translateY(-1px) }
+  .bug .ix{ width:26px;height:26px;border-radius:8px; flex:0 0 26px; background:var(--s3); display:grid;place-items:center; font:700 12px var(--mono); color:var(--accent-light) }
+  .bug .bt{ font-size:14.5px; font-weight:700 }
+  .bug .br{ font-size:12.5px; color:var(--tx3); margin-top:3px } .bug .br b{ color:var(--tx2); font-weight:500 }
+  .bug .go{ margin-left:auto; color:var(--tx3); font-size:18px; align-self:center }
+
+  .run{ margin-top:8px }
+  .runhead{ display:flex; align-items:center; gap:11px; padding:14px 0 16px; border-bottom:1px solid var(--border); margin-bottom:18px }
+  .runhead .back{ background:var(--s2); border:1px solid var(--border); color:var(--tx2); border-radius:8px; padding:6px 11px; font-size:12.5px; cursor:pointer }
+  .runhead .rt{ font-size:14.5px; font-weight:700 } .runhead .rr{ font-size:12px; color:var(--tx3) }
+
+  .feed{ display:flex; flex-direction:column; gap:14px }
+  .step{ display:flex; gap:12px }
+  .sicon{ width:22px;height:22px;flex:0 0 22px;border-radius:50%; display:grid;place-items:center; margin-top:1px;
+    border:1.5px solid var(--border-strong); color:var(--tx3); font-size:12px; position:relative }
+  .sicon.run{ border-color:var(--accent) } .sicon.run::after{ content:""; position:absolute; inset:-1.5px; border-radius:50%;
+    border:1.5px solid transparent; border-top-color:var(--accent-light); animation:spin .7s linear infinite }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+  .sicon.done{ background:var(--green); border-color:var(--green); color:#04130d } .sicon.done svg{ width:12px;height:12px }
+  .sicon.fail{ background:var(--red); border-color:var(--red); color:#fff }
+  .sbody{ flex:1; min-width:0 } .lbl2{ font-size:13.5px; font-weight:600 } .sub2{ font-size:12px; color:var(--tx3); margin-top:2px }
+  .note{ display:inline-flex; align-items:center; gap:6px; margin-top:9px; font-size:11.5px; color:var(--amber); font-weight:600 }
+  .note .d{ width:6px;height:6px;border-radius:50%; background:var(--amber) }
+
+  .cb{ margin-top:10px; background:#0a0d12; border:1px solid var(--border); border-radius:10px; overflow:hidden }
+  .cb .bar{ display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--border); font:500 11.5px var(--mono); color:var(--tx3) }
+  .cb .bar .fdot{ width:8px;height:8px;border-radius:2px; background:var(--accent) }
+  .cb .bar .badge{ margin-left:auto; font-size:10px; color:var(--tx3); border:1px solid var(--border); border-radius:5px; padding:1px 6px }
+  .code{ padding:11px 13px; font:500 12px/1.65 var(--mono); white-space:pre-wrap; word-break:break-word }
+  .code .ln{ opacity:0; transform:translateY(3px); transition:.2s var(--ease) } .code .ln.in{ opacity:1; transform:none }
+  .code .add{ background:rgba(16,185,129,.10); display:block; margin:0 -13px; padding:0 13px; border-left:2px solid var(--green); color:#a7f3d0 }
+  .code .del{ background:rgba(239,68,68,.10); display:block; margin:0 -13px; padding:0 13px; border-left:2px solid var(--red); color:#fecaca }
+
+  .rn{ margin-top:10px; background:#0a0d12; border:1px solid var(--border); border-radius:10px; padding:11px 13px; font:500 12px/1.7 var(--mono) }
+  .rn .ln{ opacity:0; transition:.18s; display:flex; gap:8px; align-items:center } .rn .ln.in{ opacity:1 }
+  .rn .pass{ color:var(--green) } .rn .fail{ color:var(--red) } .rn .muted{ color:var(--tx3) } .rn .exp{ color:var(--tx3); padding-left:18px }
+  .rn .tag{ margin-left:auto; font-size:10px; color:var(--accent-light); border:1px solid var(--border-accent); border-radius:4px; padding:0 5px }
+  .rn .sum{ margin-top:6px; padding-top:6px; border-top:1px solid var(--border); color:var(--tx2) }
+
+  .prcard{ margin-top:4px; background:var(--s2); border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; opacity:0; transform:translateY(10px); transition:.4s var(--ease) }
+  .prcard.in{ opacity:1; transform:none }
+  .prtop{ padding:13px 15px; display:flex; gap:11px; align-items:flex-start; border-bottom:1px solid var(--border) }
+  .prtop .gh{ width:28px;height:28px;flex:0 0 28px;border-radius:8px; background:#0a0d12; border:1px solid var(--border); display:grid;place-items:center } .prtop .gh svg{ width:16px;height:16px; color:var(--tx2) }
+  .prtitle{ font-size:14px; font-weight:700; line-height:1.3 }
+  .prmeta{ font-size:11.5px; color:var(--tx3); margin-top:3px } .prmeta .bot{ color:var(--accent-light); font-weight:600 }
+  .prmeta .draft{ display:inline-flex; align-items:center; gap:5px; background:var(--s4); color:var(--tx2); border-radius:20px; padding:1px 8px; font-weight:600; margin-right:7px }
+  .prmeta .draft .d{ width:6px;height:6px;border-radius:50%; background:var(--tx3) }
+  .prstats{ padding:10px 15px; border-bottom:1px solid var(--border); font:500 11.5px var(--mono); color:var(--tx3) }
+  .checks{ padding:11px 15px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border) }
+  .checks .ok{ width:20px;height:20px;border-radius:50%; background:var(--green); color:#04130d; display:grid;place-items:center } .checks .ok svg{ width:12px;height:12px }
+  .checks small{ display:block; color:var(--tx3); font-size:11px }
+  .prfoot{ padding:13px 15px; background:rgba(124,92,246,.05) }
+  .viewpr{ display:flex; align-items:center; justify-content:center; gap:8px; height:42px; border-radius:9px; text-decoration:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff; font-weight:600; font-size:14px }
+  .viewpr.off{ background:var(--s3); color:var(--tx3); cursor:default }
+
+  .actions{ margin-top:22px; display:flex; gap:10px; align-items:center }
+  .btn{ background:var(--s2); border:1px solid var(--border); color:var(--tx2); border-radius:9px; padding:9px 15px; font-size:13px; font-weight:600; cursor:pointer }
+  .btn.primary{ background:transparent; border-color:var(--border-accent); color:var(--accent-light) }
+  .tryline{ margin-left:auto; font-size:12.5px; color:var(--tx3) } .tryline a{ color:var(--accent-light); text-decoration:none }
+
+  .hidden{ display:none }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+      <div><b>AnnotateQA</b><span>customer-reported bugs, fixed</span></div>
+    </div>
+
+    <div id="intro">
+      <h1>A customer reported this bug.<br><span class="g">Here's the PR it came back as.</span></h1>
+      <p class="lead">Folio is a tiny demo store with real bugs in it. Pick one — you'll watch the actual run AnnotateQA did: reproduce it as a failing test, fix it, check it against the repo's own test suite, and open a draft PR you can read on GitHub.</p>
+      <div class="honest"><span class="d"></span> Real runs on the <a href="#" id="repoLink" style="color:var(--tx2)">folio-shop</a> repo. You're watching a replay, not a live run.</div>
+
+      <div class="pick" id="pick"><div class="lbl">Pick a bug</div></div>
+    </div>
+
+    <div id="runView" class="run hidden">
+      <div class="runhead">
+        <button class="back" id="back">← bugs</button>
+        <div><div class="rt" id="runTitle"></div><div class="rr" id="runReport"></div></div>
+      </div>
+      <div class="feed" id="feed"></div>
+      <div class="actions hidden" id="actions">
+        <button class="btn primary" id="replay">↺ Replay</button>
+        <button class="btn" id="another">← Pick another bug</button>
+        <span class="tryline">Found a different bug? <a href="/" id="tryStore">report it on the store →</a></span>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = (s, r=document)=>r.querySelector(s);
+  const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+  const esc = (s)=>String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let DATA = null, playToken = 0;
+
+  function codeHTML(code){
+    const lines = code.lines.map(l => {
+      if (typeof l === 'string') return `<div class="ln">${esc(l)}</div>`;
+      if ('add' in l) return `<div class="ln"><span class="add">+ ${esc(l.add)}</span></div>`;
+      if ('del' in l) return `<div class="ln"><span class="del">- ${esc(l.del)}</span></div>`;
+      return '';
+    }).join('');
+    return `<div class="cb"><div class="bar"><span class="fdot"></span>${esc(code.file)}<span class="badge">${esc(code.badge||'')}</span></div><div class="code">${lines}</div></div>`;
+  }
+  function runLineHTML(l){
+    const tag = l.tag ? `<span class="tag">${esc(l.tag)}</span>` : '';
+    if ('muted' in l) return `<div class="ln"><span class="muted">${esc(l.muted)}</span></div>`;
+    if ('pass'  in l && l.pass !== true) return `<div class="ln"><span class="pass">${esc(l.pass)}</span>${tag}</div>`;
+    if ('fail'  in l) return `<div class="ln"><span class="fail">${esc(l.fail)}</span>${tag}</div>`;
+    if ('exp'   in l) return `<div class="ln"><span class="exp">${esc(l.exp)}</span></div>`;
+    if ('sum'   in l) return `<div class="ln"><span class="sum">${esc(l.sum)}</span></div>`;
+    return '';
+  }
+
+  async function reveal(host, html, per=150, token){
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    const block = tmp.firstElementChild; host.appendChild(block);
+    const lines = block.querySelectorAll('.ln');
+    for (const ln of lines){
+      if (token !== playToken) return;
+      requestAnimationFrame(()=>ln.classList.add('in'));
+      window.scrollTo(0, document.body.scrollHeight);
+      await sleep(per);
+    }
+  }
+
+  async function play(bug){
+    const token = ++playToken;
+    $('#intro').classList.add('hidden');
+    $('#runView').classList.remove('hidden');
+    $('#actions').classList.add('hidden');
+    $('#runTitle').textContent = bug.title;
+    $('#runReport').innerHTML = `“${esc(bug.report)}”`;
+    const feed = $('#feed'); feed.innerHTML = '';
+
+    await sleep(350);
+    for (const step of bug.steps){
+      if (token !== playToken) return;
+      const el = document.createElement('div'); el.className = 'step';
+      el.innerHTML = `<div class="sicon run"></div><div class="sbody"><div class="lbl2">${esc(step.label)}</div>${step.sub?`<div class="sub2">${esc(step.sub)}</div>`:''}</div>`;
+      feed.appendChild(el);
+      const icon = el.querySelector('.sicon'), body = el.querySelector('.sbody');
+      window.scrollTo(0, document.body.scrollHeight);
+      await sleep(560);
+      if (token !== playToken) return;
+      if (step.note) body.insertAdjacentHTML('beforeend', `<div class="note"><span class="d"></span> ${esc(step.note)}</div>`);
+      if (step.code) await reveal(body, codeHTML(step.code), 150, token);
+      if (step.run){
+        const rn = document.createElement('div'); rn.className='rn'; body.appendChild(rn);
+        for (const l of step.run){
+          if (token!==playToken) return;
+          const tmp = document.createElement('div'); tmp.innerHTML = runLineHTML(l);
+          const lineEl = tmp.firstElementChild; rn.appendChild(lineEl);
+          requestAnimationFrame(()=>lineEl.classList.add('in'));
+          window.scrollTo(0, document.body.scrollHeight);
+          await sleep(180);
+        }
+      }
+      icon.classList.remove('run');
+      if (step.status === 'fail'){ icon.classList.add('fail'); icon.textContent='!'; }
+      else { icon.classList.add('done'); icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>'; }
+      await sleep(360);
+    }
+    if (token !== playToken) return;
+
+    // the draft PR
+    const hasPR = !!bug.pr_url;
+    const card = document.createElement('div'); card.className='prcard';
+    card.innerHTML = `
+      <div class="prtop">
+        <div class="gh"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.8-4.58 5.05.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></div>
+        <div style="flex:1"><div class="prtitle">Fix: ${esc(bug.title)}</div>
+          <div class="prmeta"><span class="draft"><span class="d"></span>Draft</span><span class="bot">annotate-qa[bot]</span> → main</div></div>
+      </div>
+      <div class="prstats">${esc(bug.stats||'')}</div>
+      <div class="checks"><div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div><b style="font-size:12.5px">All checks have passed</b><small>the reproduction + the repo's existing suite, both green</small></div></div>
+      <div class="prfoot">${ hasPR
+        ? `<a class="viewpr" href="${esc(bug.pr_url)}" target="_blank" rel="noopener">View draft PR${bug.pr_number?' #'+bug.pr_number:''} on GitHub →</a>`
+        : `<div class="viewpr off">Connect the repo to AnnotateQA to get the real PR link</div>` }</div>`;
+    $('#feed').appendChild(card);
+    requestAnimationFrame(()=>card.classList.add('in'));
+    window.scrollTo(0, document.body.scrollHeight);
+    await sleep(250);
+    $('#actions').classList.remove('hidden');
+    let cur = bug; // for replay
+    $('#replay').onclick = ()=>play(cur);
+  }
+
+  function renderPicker(){
+    const pick = $('#pick');
+    DATA.bugs.forEach((bug, i)=>{
+      const b = document.createElement('button'); b.className='bug';
+      b.innerHTML = `<span class="ix">${i+1}</span><div style="flex:1"><div class="bt">${esc(bug.title)}</div><div class="br"><b>“${esc(bug.report)}”</b></div></div><span class="go">→</span>`;
+      b.onclick = ()=>play(bug);
+      pick.appendChild(b);
+    });
+  }
+
+  fetch('./runs.json').then(r=>r.json()).then(data=>{
+    DATA = data;
+    if (data.store_url) $('#tryStore').setAttribute('href', data.store_url);
+    renderPicker();
+    $('#back').onclick = $('#another').onclick = ()=>{ playToken++; $('#runView').classList.add('hidden'); $('#intro').classList.remove('hidden'); window.scrollTo(0,0); };
+  }).catch(()=>{ $('#pick').insertAdjacentHTML('beforeend','<div style="color:var(--tx3);font-size:13px">Could not load runs.json.</div>'); });
+})();
+</script>
+</body>
+</html>

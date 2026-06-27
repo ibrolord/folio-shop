@@ -1,0 +1,15 @@
+{
+  "name": "folio-shop",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "A tiny demo storefront with deliberately planted bugs, used to show AnnotateQA fixing real customer-reported bugs.",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "node src/server.js"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  }
+}

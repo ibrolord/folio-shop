@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Folio — notebooks & stationery</title>
+<style>
+  :root{ --ink:#15151c; --muted:#8a8a96; --line:#ececf1; --accent:#7C5CF6; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:'Inter',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:#fbfbfd; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:960px; margin:0 auto; padding:0 24px; }
+  header{ display:flex; align-items:center; justify-content:space-between; padding:22px 0; border-bottom:1px solid var(--line); }
+  .logo{ font-weight:800; font-size:20px; letter-spacing:-.4px; display:flex; align-items:center; gap:9px }
+  .logo .mark{ width:26px;height:26px;border-radius:7px; background:linear-gradient(135deg,#15151c,#3a3a4a); color:#fff; display:grid;place-items:center; font-size:14px }
+  nav{ display:flex; gap:24px; color:#6a6a76; font-size:14px; font-weight:500 }
+  main{ display:grid; grid-template-columns:1.3fr 1fr; gap:40px; padding:40px 0; align-items:start }
+  @media (max-width:760px){ main{ grid-template-columns:1fr } }
+
+  .feature{ background:#fff; border:1px solid var(--line); border-radius:16px; overflow:hidden }
+  .feature .art{ height:220px; background:linear-gradient(135deg,#e9e7ff,#d6e9ff); display:grid; place-items:center; font-size:64px }
+  .feature .body{ padding:20px 22px }
+  .feature h2{ font-size:19px; letter-spacing:-.3px }
+  .feature p{ color:var(--muted); font-size:14px; margin-top:4px }
+  .feature .price{ font-weight:800; font-size:22px; margin-top:14px }
+
+  .card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow:0 10px 40px rgba(20,20,40,.05) }
+  .card h1{ font-size:20px; letter-spacing:-.3px }
+  .card .sub{ color:var(--muted); font-size:13px; margin-top:3px }
+  .item{ display:flex; align-items:center; gap:14px; margin-top:20px; padding-bottom:18px; border-bottom:1px solid var(--line) }
+  .item .thumb{ width:54px;height:54px;border-radius:11px; background:linear-gradient(135deg,#e9e7ff,#d6e9ff); display:grid;place-items:center; font-size:22px; flex:0 0 54px }
+  .item b{ font-size:14px } .item span{ display:block; color:var(--muted); font-size:12px; margin-top:1px }
+  .item .ip{ margin-left:auto; font-weight:700; font-size:14px }
+  .promo{ display:flex; gap:9px; margin-top:18px }
+  .promo input{ flex:1; height:40px; border-radius:9px; border:1px solid #e2e2ea; padding:0 12px; font:600 13px ui-monospace,monospace; letter-spacing:.04em; text-transform:uppercase }
+  .promo button{ height:40px; padding:0 16px; border-radius:9px; border:1px solid var(--ink); background:var(--ink); color:#fff; font-weight:600; font-size:13px; cursor:pointer }
+  .note{ font-size:12px; margin-top:8px; min-height:16px } .note.ok{ color:#16a34a } .note.bad{ color:#ef4444 }
+  .sum{ margin-top:18px; border-top:1px solid var(--line); padding-top:16px }
+  .row{ display:flex; justify-content:space-between; font-size:13.5px; color:#6a6a76; margin-bottom:9px }
+  .row .v{ color:var(--ink); font-weight:600 }
+  .row.total{ font-size:16px; font-weight:800; color:var(--ink); border-top:1px dashed #e6e6ee; padding-top:13px; margin-top:3px }
+  .row.total .v{ font-size:18px }
+  .checkout{ width:100%; height:46px; margin-top:18px; border:0; border-radius:11px; background:linear-gradient(135deg,var(--accent),#5B3FE0); color:#fff; font-weight:600; font-size:15px; cursor:pointer }
+
+  footer{ border-top:1px solid var(--line); padding:34px 0; margin-top:20px }
+  .news{ max-width:420px } .news h3{ font-size:15px } .news p{ color:var(--muted); font-size:13px; margin-top:3px }
+  .news .field{ display:flex; gap:9px; margin-top:12px }
+  .news input{ flex:1; height:40px; border-radius:9px; border:1px solid #e2e2ea; padding:0 12px; font-size:13px }
+  .news button{ height:40px; padding:0 16px; border-radius:9px; border:1px solid var(--ink); background:#fff; font-weight:600; font-size:13px; cursor:pointer }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><span class="mark">F</span> Folio</div>
+      <nav><span>Shop</span><span>Journals</span><span>Cart · 2</span></nav>
+    </header>
+
+    <main>
+      <div class="feature">
+        <div class="art">📔</div>
+        <div class="body">
+          <h2>The Folio Pro Library</h2>
+          <p>The complete collection — every notebook, pen, and refill we make.</p>
+          <div class="price" id="featurePrice">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h1>Your cart</h1>
+        <div class="sub">2 items · ships in 1–2 business days</div>
+
+        <div class="item">
+          <div class="thumb">📓</div>
+          <div><b>Everyday Notebook — Charcoal</b><span>Dot grid · A5</span></div>
+          <div class="ip">$50.00</div>
+        </div>
+
+        <div class="promo">
+          <input id="promo" placeholder="Promo code" spellcheck="false" />
+          <button id="apply">Apply</button>
+        </div>
+        <div class="note" id="promoNote"></div>
+
+        <div class="sum">
+          <div class="row"><span>Subtotal</span><span class="v" id="vSub">—</span></div>
+          <div class="row"><span>Discount</span><span class="v" id="vDisc">—</span></div>
+          <div class="row"><span>Shipping</span><span class="v" id="vShip">—</span></div>
+          <div class="row total"><span>Total</span><span class="v" id="vTotal">—</span></div>
+        </div>
+        <button class="checkout">Checkout</button>
+      </div>
+    </main>
+
+    <footer>
+      <div class="news">
+        <h3>Get 10% off your first order</h3>
+        <p>Join the Folio newsletter. We use code SAVE10.</p>
+        <div class="field">
+          <input id="email" placeholder="you@example.com" />
+          <button id="subscribe">Subscribe</button>
+        </div>
+        <div class="note" id="emailNote"></div>
+      </div>
+    </footer>
+  </div>
+
+  <!--
+    AnnotateQA widget. Paste your project's loader snippet here so reports from
+    this page land in your AnnotateQA demo project:
+    <script src="https://annotate-dashboard.pages.dev/widget.js" data-annotate-project-key="..."></script>
+  -->
+
+  <script type="module">
+    import { summarize, subtotal } from './src/pricing.js';
+    import { formatPrice } from './src/format.js';
+    import { isValidEmail } from './src/email.js';
+
+    const items = [{ name: 'Everyday Notebook', price: 25, qty: 2 }];
+    let promo = '';
+
+    // Featured bundle price — surfaces the formatting bug ($1099.00, no comma).
+    document.getElementById('featurePrice').textContent = formatPrice(1099);
+
+    function render() {
+      const s = summarize({ items, promo });
+      document.getElementById('vSub').textContent = formatPrice(s.subtotal);
+      document.getElementById('vDisc').textContent = s.discount ? '−' + formatPrice(s.discount) : '—';
+      document.getElementById('vShip').textContent = s.shipping ? formatPrice(s.shipping) : 'FREE';
+      document.getElementById('vTotal').textContent = formatPrice(s.total);
+    }
+
+    document.getElementById('apply').addEventListener('click', () => {
+      promo = document.getElementById('promo').value.trim();
+      const note = document.getElementById('promoNote');
+      if (!promo) { note.textContent = ''; render(); return; }
+      note.className = 'note ok';
+      note.textContent = `Code ${promo.toUpperCase()} applied`;
+      render();
+    });
+
+    document.getElementById('subscribe').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const note = document.getElementById('emailNote');
+      if (isValidEmail(email)) {
+        note.className = 'note ok'; note.textContent = "You're in — 10% off is on its way.";
+      } else {
+        note.className = 'note bad'; note.textContent = "That doesn't look like a valid email.";
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
