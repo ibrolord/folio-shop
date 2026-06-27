@@ -14,8 +14,12 @@ export function subtotal(items) {
 export function summarize(cart) {
   const sub = subtotal(cart.items);
   const promo = PROMOS[cart.promo];
-  const discount = promo ? (promo.amount ?? 0) : 0;
+  const discount = promo
+    ? promo.type === 'percent'
+      ? sub * promo.value
+      : promo.value
+    : 0;
+  const shipping = sub >= FREE_SHIPPING_THRESHOLD ? 0 : 5;
   const total = sub - discount;
-  const shipping = total >= FREE_SHIPPING_THRESHOLD ? 0 : 5;
   return { subtotal: sub, discount, shipping, total };
 }
