@@ -29,7 +29,7 @@ export function summarize(cart) {
 export function savingsLabel(cart) {
   const promo = cart.promo ? PROMOS[cart.promo.toUpperCase()] : null;
   if (!promo) return '';
-  // BUG: the promo's discount field is named `value`, but this reads `promo.amount`,
-  // which is undefined — so `.toFixed(2)` throws a TypeError the moment a promo is applied.
-  return `You saved $${promo.amount.toFixed(2)} with code ${cart.promo.toUpperCase()}.`;
+  const sub = subtotal(cart.items);
+  const discount = promo.type === 'percent' ? sub * promo.value : promo.value;
+  return `You saved ${discount.toFixed(2)} with code ${cart.promo.toUpperCase()}.`;
 }
