@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Pulls real Auto-Fix runs from AnnotateQA and writes the real PR links + diffs
-// + cost/time into show/runs.json, so the replay page shows the genuine article.
+// + cost/time into public/show/runs.json, so the replay page shows the genuine article.
 //
 // Usage:
 //   ANNOTATE_TOKEN=... node scripts/export-runs.mjs save10=<fixRunId> email=<fixRunId> format=<fixRunId>
@@ -13,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const RUNS = path.resolve(__dirname, '../show/runs.json');
+const RUNS = path.resolve(__dirname, '../public/show/runs.json');
 const API = (process.env.ANNOTATE_API || 'https://annotate-api-production.up.railway.app').replace(/\/+$/, '');
 const TOKEN = process.env.ANNOTATE_TOKEN;
 

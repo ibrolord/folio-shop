@@ -1,0 +1,80 @@
+{
+  "note": "One real Auto-Fix run on the folio-shop demo repo — real Playwright reproduction against the running store, real model-generated patch, real test output, real PR.",
+  "store_url": "../",
+  "repo_url": "https://github.com/ibrolord/folio-shop",
+  "bugs": [
+    {
+      "id": "save10",
+      "title": "Applying the SAVE10 code crashes the cart",
+      "report": "I clicked “Apply newsletter discount (SAVE10)” and nothing happened — the total stayed $50.00 and the page threw an error. The 10% never came off.",
+      "tag": "checkout",
+      "pr_url": "https://github.com/ibrolord/folio-shop/pull/4",
+      "pr_number": 4,
+      "stats": "+3 −3 · 1 file · 2m 40s · $0.76",
+      "steps": [
+        {
+          "label": "Reproducing it against the running store",
+          "sub": "cloned the repo · npm ci · drove the live cart with Playwright from the captured report",
+          "code": {
+            "file": ".annotate/reproductions/save10.spec.ts",
+            "badge": "playwright",
+            "lines": [
+              "import { test, expect } from '@playwright/test';",
+              "",
+              "test('applying SAVE10 keeps the console clean', async ({ page }) => {",
+              "  const consoleErrors = [];",
+              "  page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });",
+              "  await page.goto(replayUrl('https://folio.shop/'));",
+              "  await page.locator('#apply').first().click();   // \"Apply newsletter discount · SAVE10\"",
+              "  await page.waitForLoadState('networkidle');",
+              "  expect(consoleErrors).toEqual([]);",
+              "});"
+            ]
+          },
+          "status": "done"
+        },
+        {
+          "label": "Confirming the bug reproduces first",
+          "sub": "the generated test has to fail before any fix is allowed",
+          "run": [
+            { "muted": "serving public/ · npx playwright test .annotate/reproductions/save10.spec.ts" },
+            { "fail": "✗ applying SAVE10 keeps the console clean" },
+            { "exp": "expect(consoleErrors).toEqual([])" },
+            { "exp": "Received: [ \"…TypeError: Cannot read properties of undefined (reading 'toFixed') at savingsLabel\" ]" },
+            { "sum": "1 failed — the bug reproduces" }
+          ],
+          "status": "fail"
+        },
+        {
+          "label": "Proposing the smallest fix",
+          "sub": "savingsLabel() read promo.amount, but the promo's discount field is named value",
+          "code": {
+            "file": "public/src/pricing.js",
+            "badge": "diff",
+            "lines": [
+              { "del": "return `You saved $${promo.amount.toFixed(2)} with code ${cart.promo.toUpperCase()}.`;" },
+              { "add": "const sub = subtotal(cart.items);" },
+              { "add": "const discount = promo.type === 'percent' ? sub * promo.value : promo.value;" },
+              { "add": "return `You saved ${discount.toFixed(2)} with code ${cart.promo.toUpperCase()}.`;" }
+            ]
+          },
+          "status": "done"
+        },
+        {
+          "label": "Re-running the reproduction + your existing test suite",
+          "sub": "the fix has to pass both before a PR is opened",
+          "run": [
+            { "muted": "npx playwright test    ·    npm test" },
+            { "pass": "✓ applying SAVE10 keeps the console clean" },
+            { "pass": "✓ test/pricing.test.js  (4 tests)" },
+            { "pass": "✓ test/email.test.js  (4 tests)" },
+            { "pass": "✓ test/catalog.test.js  (2 tests)" },
+            { "pass": "✓ test/format.test.js  (3 tests)" },
+            { "sum": "reproduction green · 13/13 existing tests still pass" }
+          ],
+          "status": "done"
+        }
+      ]
+    }
+  ]
+}
